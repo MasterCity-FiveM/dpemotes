@@ -1,5 +1,3 @@
-TriggerServerEvent("dp:CheckVersion")
-
 rightPosition = {x = 1450, y = 100}
 leftPosition = {x = 0, y = 100}
 menuPosition = {x = 0, y = 200}
@@ -43,20 +41,16 @@ local FaceTable = {}
 local ShareTable = {}
 local FavoriteEmote = ""
 
-Citizen.CreateThread(function()
-  while true do
+RegisterNetEvent('master_keymap:capslock')
+AddEventHandler('master_keymap:capslock', function()
     if Config.FavKeybindEnabled then
-      if IsControlPressed(0, Config.FavKeybind) then
-        if not IsPedSittingInAnyVehicle(PlayerPedId()) then
-          if FavoriteEmote ~= "" then
-            EmoteCommandStart(nil,{FavoriteEmote, 0})
-            Wait(3000)
-          end
+		if not IsPedSittingInAnyVehicle(PlayerPedId()) then
+		  if FavoriteEmote ~= "" then
+			EmoteCommandStart(nil,{FavoriteEmote, 0})
+			Wait(3000)
+		  end
         end
-      end
-    end
-    Citizen.Wait(1)
-  end
+	end
 end)
 
 lang = Config.MenuLanguage

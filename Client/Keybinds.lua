@@ -1,104 +1,89 @@
-if Config.SqlKeybinding then
-local emob1 = ""
-local emob2 = ""
-local emob3 = ""
-local emob4 = ""
-local emob5 = ""
-local emob6 = ""
-local keyb1 = ""
-local keyb2 = ""
-local keyb3 = ""
-local keyb4 = ""
-local keyb5 = ""
-local keyb6 = "" 
-local Initialized = false
+RegisterNetEvent('master_keymap:cc')
+AddEventHandler('master_keymap:cc', function()
+	EmoteCommandStart(nil,{'handsup', 0})
+end)
 
------------------------------------------------------------------------------------------------------
--- Commands / Events --------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------
+RegisterNetEvent('master_keymap:h')
+AddEventHandler('master_keymap:h', function()
+	EmoteCommandStart(nil,{'whistle2', 0})
+end)
 
-Citizen.CreateThread(function()
-  while true do
+local underPoint = false
+RegisterNetEvent('master_keymap:b')
+AddEventHandler('master_keymap:b', function()
+	if underPoint then
+		stopPointing()
+	else
+		startPointing()
+	end
+end)
 
-    if NetworkIsPlayerActive(PlayerId()) and not Initialized then
-        if not Initialized then
-            TriggerServerEvent("dp:ServerKeybindExist")
-            Wait(5000)
-        end
+function startPointing()
+	underPoint = true
+    local ped = GetPlayerPed(-1)
+    RequestAnimDict("anim@mp_point")
+    while not HasAnimDictLoaded("anim@mp_point") do
+        Wait(0)
     end
+    SetPedCurrentWeaponVisible(ped, 0, 1, 1, 1)
+    SetPedConfigFlag(ped, 36, 1)
+    Citizen.InvokeNative(0x2D537BA194896636, ped, "task_mp_pointing", 0.5, 0, "anim@mp_point", 24)
+    RemoveAnimDict("anim@mp_point")
+	
+	Citizen.CreateThread(function()
+		while underPoint do
+			Wait(0)
+			if Citizen.InvokeNative(0x921CE12C489C4C41, PlayerPedId()) then
+				if not IsPedOnFoot(PlayerPedId()) then
+					stopPointing()
+				else
+					local ped = GetPlayerPed(-1)
+					local camPitch = GetGameplayCamRelativePitch()
+					if camPitch < -70.0 then
+						camPitch = -70.0
+					elseif camPitch > 42.0 then
+						camPitch = 42.0
+					end
+					camPitch = (camPitch + 70.0) / 112.0
 
-    if not IsPedSittingInAnyVehicle(PlayerPedId()) then
-        for k, v in pairs(Config.KeybindKeys) do
-            if IsControlJustReleased(0, v) then
-                if k == keyb1 then if emob1 ~= "" then EmoteCommandStart(nil,{emob1, 0}) end end
-                if k == keyb2 then if emob2 ~= "" then EmoteCommandStart(nil,{emob2, 0}) end end
-                if k == keyb3 then if emob3 ~= "" then EmoteCommandStart(nil,{emob3, 0}) end end
-                if k == keyb4 then if emob4 ~= "" then EmoteCommandStart(nil,{emob4, 0}) end end
-                if k == keyb5 then if emob5 ~= "" then EmoteCommandStart(nil,{emob5, 0}) end end
-                if k == keyb6 then if emob6 ~= "" then EmoteCommandStart(nil,{emob6, 0}) end end
-                Wait(1000)
-            end
-        end
-    end
-    Citizen.Wait(1)
-  end
-end)
+					local camHeading = GetGameplayCamRelativeHeading()
+					local cosCamHeading = Cos(camHeading)
+					local sinCamHeading = Sin(camHeading)
+					if camHeading < -180.0 then
+						camHeading = -180.0
+					elseif camHeading > 180.0 then
+						camHeading = 180.0
+					end
+					camHeading = (camHeading + 180.0) / 360.0
 
-RegisterNetEvent("dp:ClientKeybindExist")
-AddEventHandler("dp:ClientKeybindExist", function(does)
-    if does then
-    	TriggerServerEvent("dp:ServerKeybindGrab")
-    else
-    	TriggerServerEvent("dp:ServerKeybindCreate")
-    end
-end)
+					local blocked = 0
+					local nn = 0
 
-RegisterNetEvent("dp:ClientKeybindGet")
-AddEventHandler("dp:ClientKeybindGet", function(k1, e1, k2, e2, k3, e3, k4, e4, k5, e5, k6, e6)
-    keyb1 = k1 emob1 = e1 keyb2 = k2 emob2 = e2 keyb3 = k3 emob3 = e3 keyb4 = k4 emob4 = e4 keyb5 = k5 emob5 = e5 keyb6 = k6 emob6 = e6
-    Initialized = true
-end)
+					local coords = GetOffsetFromEntityInWorldCoords(ped, (cosCamHeading * -0.2) - (sinCamHeading * (0.4 * camHeading + 0.3)), (sinCamHeading * -0.2) + (cosCamHeading * (0.4 * camHeading + 0.3)), 0.6)
+					local ray = Cast_3dRayPointToPoint(coords.x, coords.y, coords.z - 0.2, coords.x, coords.y, coords.z + 0.2, 0.4, 95, ped, 7);
+					nn,blocked,coords,coords = GetRaycastResult(ray)
 
-RegisterNetEvent("dp:ClientKeybindGetOne")
-AddEventHandler("dp:ClientKeybindGetOne", function(key, e)
-    SimpleNotify(Config.Languages[lang]['bound'].."~y~"..e.."~w~ "..Config.Languages[lang]['to'].." ~g~"..firstToUpper(key).."~w~")
-	if key == "num4" then emob1 = e keyb1 = "num4" elseif key == "num5" then emob2 = e keyb2 = "num5" elseif key == "num6" then emob3 = e keyb3 = "num6" elseif key == "num7" then emob4 = e keyb4 = "num7" elseif key == "num8" then emob5 = e keyb5 = "num8" elseif key == "num9" then emob6 = e keyb6 = "num9" end
-end)
+					Citizen.InvokeNative(0xD5BB4025AE449A4E, ped, "Pitch", camPitch)
+					Citizen.InvokeNative(0xD5BB4025AE449A4E, ped, "Heading", camHeading * -1.0 + 1.0)
+					Citizen.InvokeNative(0xB0A6CFD2C69C1088, ped, "isBlocked", blocked)
+					Citizen.InvokeNative(0xB0A6CFD2C69C1088, ped, "isFirstPerson", Citizen.InvokeNative(0xEE778F8C7E1142E2, Citizen.InvokeNative(0x19CAFA3C87F7C2FF)) == 4)
 
------------------------------------------------------------------------------------------------------
------- Functions and stuff --------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------
-
-function EmoteBindsStart()
-    EmoteChatMessage(Config.Languages[lang]['currentlyboundemotes'].."\n"
-        ..firstToUpper(keyb1).." = '^2"..emob1.."^7'\n"
-        ..firstToUpper(keyb2).." = '^2"..emob2.."^7'\n"
-        ..firstToUpper(keyb3).." = '^2"..emob3.."^7'\n"
-        ..firstToUpper(keyb4).." = '^2"..emob4.."^7'\n"
-        ..firstToUpper(keyb5).." = '^2"..emob5.."^7'\n"
-        ..firstToUpper(keyb6).." = '^2"..emob6.."^7'\n")
+				end
+			end
+		end
+	end)
 end
 
-function EmoteBindStart(source, args, raw)
-    if #args > 0 then
-        local key = string.lower(args[1])
-        local emote = string.lower(args[2])
-        if (Config.KeybindKeys[key]) ~= nil then
-        	if DP.Emotes[emote] ~= nil then
-          		TriggerServerEvent("dp:ServerKeybindUpdate", key, emote)
-        	elseif DP.Dances[emote] ~= nil then
-          		TriggerServerEvent("dp:ServerKeybindUpdate", key, emote)
-        	elseif DP.PropEmotes[emote] ~= nil then
-          		TriggerServerEvent("dp:ServerKeybindUpdate", key, emote)
-        	else
-          		EmoteChatMessage("'"..emote.."' "..Config.Languages[lang]['notvalidemote'].."")
-        	end
-        else
-        	EmoteChatMessage("'"..key.."' "..Config.Languages[lang]['notvalidkey'])
-        end
-    else
-        print("invalid")
+function stopPointing()
+	underPoint = false
+    local ped = GetPlayerPed(-1)
+    Citizen.InvokeNative(0xD01015C7316AE176, ped, "Stop")
+    if not IsPedInjured(ped) then
+        ClearPedSecondaryTask(ped)
     end
-end
-
+    if not IsPedInAnyVehicle(ped, 1) then
+        SetPedCurrentWeaponVisible(ped, 1, 1, 1, 1)
+    end
+    SetPedConfigFlag(ped, 36, 0)
+    ClearPedSecondaryTask(PlayerPedId())
 end

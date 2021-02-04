@@ -1,25 +1,28 @@
 local isInRagdoll = false
+IsSleep = false
 
-Citizen.CreateThread(function()
- while true do
-    Citizen.Wait(10)
-    if isInRagdoll then
-      SetPedToRagdoll(GetPlayerPed(-1), 1000, 1000, 0, 0, 0, 0)
-    end
-  end
-end)
-
-Citizen.CreateThread(function()
-    while true do
-    Citizen.Wait(0)
-    if IsControlJustPressed(2, Config.RagdollKeybind) and Config.RagdollEnabled and IsPedOnFoot(PlayerPedId()) then
+RegisterNetEvent('master_keymap:u')
+AddEventHandler('master_keymap:u', function()
+	if IsSleep then
+		return
+	end
+	
+	if Config.RagdollEnabled and IsPedOnFoot(PlayerPedId()) then
         if isInRagdoll then
             isInRagdoll = false
         else
             isInRagdoll = true
+			
+			Citizen.CreateThread(function()
+			 while isInRagdoll do
+				Citizen.Wait(10)
+				SetPedToRagdoll(GetPlayerPed(-1), 1000, 1000, 0, 0, 0, 0)
+			  end
+			end)
+			
+			IsSleep = true
             Wait(500)
+			IsSleep = false
         end
-    end
-  end
+	end
 end)
-

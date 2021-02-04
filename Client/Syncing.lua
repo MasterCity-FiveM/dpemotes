@@ -79,28 +79,31 @@ AddEventHandler("ClientEmoteRequestReceive", function(emotename, etype)
     SimpleNotify(Config.Languages[lang]['doyouwanna']..remote.."~w~)")
 end)
 
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(5)
-        if IsControlJustPressed(1, 246) and isRequestAnim then
+RegisterNetEvent('master_keymap:y')
+AddEventHandler('master_keymap:y', function()
+	if isRequestAnim then
         target, distance = GetClosestPlayer()
-            if(distance ~= -1 and distance < 3) then
-                if DP.Shared[requestedemote] ~= nil then
-                    _,_,_,otheremote = table.unpack(DP.Shared[requestedemote])
-                elseif DP.Dances[requestedemote] ~= nil then
-                    _,_,_,otheremote = table.unpack(DP.Dances[requestedemote])
-                end
-                if otheremote == nil then otheremote = requestedemote end
-                TriggerServerEvent("ServerValidEmote", GetPlayerServerId(target), requestedemote, otheremote)
-                isRequestAnim = false
-            else
-                SimpleNotify(Config.Languages[lang]['nobodyclose'])
-            end
-        elseif IsControlJustPressed(1, 182) and isRequestAnim then
-            SimpleNotify(Config.Languages[lang]['refuseemote'])
-            isRequestAnim = false
-        end
-    end
+		if(distance ~= -1 and distance < 3) then
+			if DP.Shared[requestedemote] ~= nil then
+				_,_,_,otheremote = table.unpack(DP.Shared[requestedemote])
+			elseif DP.Dances[requestedemote] ~= nil then
+				_,_,_,otheremote = table.unpack(DP.Dances[requestedemote])
+			end
+			if otheremote == nil then otheremote = requestedemote end
+			TriggerServerEvent("ServerValidEmote", GetPlayerServerId(target), requestedemote, otheremote)
+			isRequestAnim = false
+		else
+			SimpleNotify(Config.Languages[lang]['nobodyclose'])
+		end
+	end
+end)
+
+RegisterNetEvent('master_keymap:l')
+AddEventHandler('master_keymap:l', function()
+	if isRequestAnim then
+		SimpleNotify(Config.Languages[lang]['refuseemote'])
+		isRequestAnim = false
+	end
 end)
 
 -----------------------------------------------------------------------------------------------------
@@ -135,10 +138,16 @@ function MearbysOnCommand(source, args, raw)
   EmoteChatMessage(Config.Languages[lang]['emotemenucmd'])
 end
 
+local underShowMessage = false
 function SimpleNotify(message)
-    SetNotificationTextEntry("STRING")
-    AddTextComponentString(message)
-    DrawNotification(0,1)
+	Citizen.CreateThread(function()
+		if underShowMessage == false then
+			exports.pNotify:SendNotification({text = message, type = "info", timeout = 3000})
+			underShowMessage = true
+			Wait(3800)
+			underShowMessage = false
+		end
+	end)
 end
 
 function GetClosestPlayer()
