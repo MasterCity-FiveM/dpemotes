@@ -1,4 +1,4 @@
-local isInRagdoll = false
+--[[local isInRagdoll = false
 IsSleep = false
 
 RegisterNetEvent('master_keymap:u')
@@ -25,4 +25,4 @@ AddEventHandler('master_keymap:u', function()
 			IsSleep = false
         end
 	end
-end)
+end)]]--

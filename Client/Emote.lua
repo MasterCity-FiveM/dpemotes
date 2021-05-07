@@ -42,6 +42,10 @@ Citizen.CreateThread(function()
   end
 end)
 
+RegisterNetEvent("dpemotes:cancelEmote") -- For opening the emote menu from another resource.
+AddEventHandler("dpemotes:cancelEmote", function()
+    EmoteCancel() 
+end)
 -----------------------------------------------------------------------------------------------------
 -- Commands / Events --------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
@@ -85,6 +89,7 @@ end)
 
 function EmoteCancel()
 
+  TriggerEvent('master_keymap:stopHandsup')
   if ChosenDict == "MaleScenario" and IsInAnimation then
     ClearPedTasksImmediately(PlayerPedId())
     IsInAnimation = false

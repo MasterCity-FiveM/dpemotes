@@ -1,6 +1,25 @@
+local handsup = false
 RegisterNetEvent('master_keymap:cc')
 AddEventHandler('master_keymap:cc', function()
-	EmoteCommandStart(nil,{'handsup', 0})
+	if handsup == false then
+		handsup = true
+		EmoteCommandStart(nil,{'handsup', 0})
+	else
+		handsup = false
+		TriggerEvent('dpemotes:cancelEmote')
+	end
+end)
+
+RegisterNetEvent('master_keymap:stopHandsup')
+AddEventHandler('master_keymap:stopHandsup', function()
+	handsup = false
+end)
+
+RegisterNetEvent('master_keymap:t')
+AddEventHandler('master_keymap:t', function()
+	if handsup == true then
+		EmoteCommandStart(nil,{'handsup', 0})
+	end
 end)
 
 RegisterNetEvent('master_keymap:h')
