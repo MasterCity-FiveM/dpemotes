@@ -2,8 +2,10 @@ local handsup = false
 RegisterNetEvent('master_keymap:cc')
 AddEventHandler('master_keymap:cc', function()
 	if handsup == false then
+		SetCurrentPedWeapon(PlayerPedId(), GetHashKey("WEAPON_UNARMED"),true)
 		handsup = true
 		EmoteCommandStart(nil,{'handsup', 0})
+		StartHandsUp()
 	else
 		handsup = false
 		TriggerEvent('dpemotes:cancelEmote')
@@ -21,6 +23,16 @@ AddEventHandler('master_keymap:t', function()
 		EmoteCommandStart(nil,{'handsup', 0})
 	end
 end)
+
+function StartHandsUp()
+	Citizen.Wait(100)
+	while handsup do
+		Citizen.Wait(1)
+		if IsEntityPlayingAnim(PlayerPedId(), 'missminuteman_1ig_2', 'handsup_base', 51) == false then
+			handsup = false
+		end
+	end
+end
 
 RegisterNetEvent('master_keymap:h')
 AddEventHandler('master_keymap:h', function()

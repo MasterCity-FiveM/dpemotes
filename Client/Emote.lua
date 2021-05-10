@@ -88,8 +88,6 @@ end)
 -----------------------------------------------------------------------------------------------------
 
 function EmoteCancel()
-
-  TriggerEvent('master_keymap:stopHandsup')
   if ChosenDict == "MaleScenario" and IsInAnimation then
     ClearPedTasksImmediately(PlayerPedId())
     IsInAnimation = false
@@ -399,7 +397,6 @@ function OnEmotePlay(EmoteName)
       PtfxPrompt = false
     end
   end
-
   TaskPlayAnim(GetPlayerPed(-1), ChosenDict, ChosenAnimation, 2.0, 2.0, AnimationDuration, MovementType, 0, false, false, false)
   RemoveAnimDict(ChosenDict)
   IsInAnimation = true
