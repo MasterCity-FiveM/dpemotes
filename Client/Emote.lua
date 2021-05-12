@@ -36,7 +36,7 @@ Citizen.CreateThread(function()
       end
     end
 
-    if Config.MenuKeybindEnabled then if IsControlPressed(0, Config.MenuKeybind) then OpenEmoteMenu() end end
+    --if Config.MenuKeybindEnabled then if IsControlPressed(0, Config.MenuKeybind) then OpenEmoteMenu() end end
     if Config.EnableXtoCancel then if IsControlPressed(0, 73) then EmoteCancel() end end
     Citizen.Wait(1)
   end
@@ -45,6 +45,11 @@ end)
 RegisterNetEvent("dpemotes:cancelEmote") -- For opening the emote menu from another resource.
 AddEventHandler("dpemotes:cancelEmote", function()
     EmoteCancel() 
+end)
+
+RegisterNetEvent("dpemotes:StartEmote") -- For opening the emote menu from another resource.
+AddEventHandler("dpemotes:StartEmote", function(name)
+    EmoteCommandStart(nil,{name, 0})
 end)
 -----------------------------------------------------------------------------------------------------
 -- Commands / Events --------------------------------------------------------------------------------
